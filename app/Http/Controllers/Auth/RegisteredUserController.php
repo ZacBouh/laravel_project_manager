@@ -44,6 +44,9 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
+        // Assigns default spatie role user
+        $user->assignRole('user');
+
         Auth::login($user);
 
         return redirect(route('dashboard', absolute: false));
