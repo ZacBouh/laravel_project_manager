@@ -7,10 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class Project extends Model
 {
     protected $fillable = [
-        title,
-        description,
-        owner_id,
-        status,
-        client_id
-    ];    //
+        'title',
+        'description',
+        'owner_id',
+        'status',
+        'client_id'
+    ];
 }

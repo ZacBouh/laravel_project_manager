@@ -1,4 +1,4 @@
-import { Transition } from '@headlessui/react';
+import { ListboxOption, Transition } from '@headlessui/react';
 import { InertiaLinkProps, Link } from '@inertiajs/react';
 import {
     createContext,
@@ -122,6 +122,14 @@ const DropdownLink = ({
         </Link>
     );
 };
+
+
+
+
+export type DropdownOption = {
+    id: string,
+    label: string
+}
 
 Dropdown.Trigger = Trigger;
 Dropdown.Content = Content;
