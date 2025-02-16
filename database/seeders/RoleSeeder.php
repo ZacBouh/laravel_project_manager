@@ -15,7 +15,7 @@ class RoleSeeder extends Seeder
     public function run(): void
     {
 
-        $userPermissions = ['view_project'];
+        $userPermissions = ['view_project', 'set_project_owner'];
         $managerPermissions = [...$userPermissions, 'create_project'];
         $adminPermissions = [...$managerPermissions, 'delete_project'];
 
@@ -27,14 +27,14 @@ class RoleSeeder extends Seeder
 
         // ADMIN
         $admin = Role::findOrCreate('admin');
-        $admin->givePermissionTo($adminPermissions);
+        $admin->syncPermissions($adminPermissions);
         // MANAGER
         $manager = Role::findOrCreate('manager');
-        $manager->givePermissionTo($managerPermissions);
+        $manager->syncPermissions($managerPermissions);
 
         // USER
         $user = Role::findOrCreate('user');
-        $user->givePermissionTo($userPermissions);
+        $user->syncPermissions($userPermissions);
 
 
     }

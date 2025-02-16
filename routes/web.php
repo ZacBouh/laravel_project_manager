@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ClientController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -22,8 +23,12 @@ Route::get('/dashboard', function () {
 // PROJECTS
 Route::middleware(['auth', 'role:user'])->group(function () {
     Route::get('/projects', [ProjectController::class, 'index'])->name('project.index');
-    Route::patch('/projects', [ProjectController::class, 'update'])->name('project.update');
+    Route::post('/projects', [ProjectController::class, 'store'])->name('project.store');
     Route::delete('/projects', [ProjectController::class, 'destroy'])->name('project.destroy');
+});
+
+Route::middleware(['auth', 'role:user'])->group(function () {
+    Route::get('/api/clients', [ClientController::class, 'getClients'])->name('api.client.get');
 });
 
 Route::middleware('auth')->group(function () {

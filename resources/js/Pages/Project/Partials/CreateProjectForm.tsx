@@ -4,19 +4,23 @@ import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
-import { useForm } from '@inertiajs/react';
-import { FormEventHandler, useState } from 'react';
-import { User } from '@/types';
+import { router, useForm, usePage } from '@inertiajs/react';
+import { FormEventHandler, useEffect, useMemo, useState } from 'react';
+import { PageProps, User } from '@/types';
 import SecondaryButton from '@/Components/SecondaryButton';
+import {useClients} from '@/Hooks'
 
 export default function CreateProjectForm({user} : {
     user : User | null
 }) {
+
+    const { flash } = usePage<PageProps<{flash: {message: string}}>>().props
+
     const { data, setData, post, processing, errors, reset } = useForm({
         title: '',
         description: '',
         owner_id: '',
-        status: '',
+        status: 'en attente',
         client_id: user?.id.toString() ?? '',
     });
 
@@ -25,30 +29,41 @@ export default function CreateProjectForm({user} : {
     const handleSelectedOwner = (e : React.MouseEvent) => setData('owner_id', e.currentTarget.id)
     const handleReset = (e : React.MouseEvent) => reset()
 
+    console.log(errors)
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
 
-        post(route('register'), {
-            // onFinish: () => reset('password', 'password_confirmation'),
+        post(route('project.store'), {
+            // onFinish: () => reset(),
         });
     };
 
-    const clientsOptions : DropdownOption[] = [
-        {id: 'id1', label : 'Client 1'}
-    ]
+    const { clients, error : clientsError, loading : clientsLoading } = useClients(user?.id);
 
-    const ownersOptions : DropdownOption[] = [
-        {id: 'id1', label : 'Owner 1'}
-    ]
+    const clientsOptions : DropdownOption[] = clients.map((client) => {
+        return {id: client.id.toString(), label: client.name}
+    })
+
+    const ownersOptions : DropdownOption[] = clients.map((client) => {
+        return {id: client.id.toString(), label: client.name}
+    })
 
     const statusOptions : DropdownOption[] = [
-        {id: 'en attente', label: 'EN ATTENTE'}
+        {id: 'en attente', label: 'En attente'},
+        {id: 'à venir', label: 'À venir'},
+        {id: 'terminé', label: 'Terminé'},
+        {id: 'annulé', label: 'Annulé'},
     ]
 
     return (
 
             <form onSubmit={submit}>
+                {flash?.message && <>
+                    <div>
+                        <h1>{flash.message}</h1>
+                    </div>
+                </> }
                 <div>
                     <InputLabel htmlFor="Titre" value="Titre" />
 
@@ -91,6 +106,7 @@ export default function CreateProjectForm({user} : {
                         selectedOptionId={data.client_id}
                         options={clientsOptions}
                     />
+                    <InputError message={errors.client_id} className="mt-2" />
                 </div>
 
                 <div className="mt-4">
@@ -103,9 +119,10 @@ export default function CreateProjectForm({user} : {
                         selectedOptionId={data.status}
                         options={statusOptions}
                     />
+                    <InputError message={errors.status} className="mt-2" />
                 </div>
 
-                {!user && <>
+                {user?.permissions.includes('set_project_owner') && <>
                     <div className="mt-4">
                         <InputLabel htmlFor="owner" value="Résponsable du Projet" />
                         <DropdownOptionSelect
@@ -116,6 +133,7 @@ export default function CreateProjectForm({user} : {
                             selectedOptionId={data.owner_id}
                             options={ownersOptions}
                         />
+                        <InputError message={errors.owner_id} className="mt-2" />
                     </div>
                 </>}
 
